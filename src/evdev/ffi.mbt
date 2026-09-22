@@ -29,6 +29,21 @@ extern "C" fn NativeDevice::write_name(
 extern "C" fn NativeDevice::id_values(self : NativeDevice) -> FixedArray[Int] = "mooninput_evdev_id"
 
 ///|
+#borrow(self, buffer)
+extern "C" fn NativeDevice::write_capability_bits(
+  self : NativeDevice,
+  event_type : Int,
+  buffer : FixedArray[Byte],
+) -> Int = "mooninput_evdev_capability_bits"
+
+///|
+#borrow(self)
+extern "C" fn NativeDevice::absolute_axis_values(
+  self : NativeDevice,
+  code : Int,
+) -> FixedArray[Int] = "mooninput_evdev_absolute_axis"
+
+///|
 #borrow(self)
 extern "C" fn NativeDevice::read_values(
   self : NativeDevice,

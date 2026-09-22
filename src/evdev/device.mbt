@@ -107,6 +107,70 @@ pub fn Device::id(self : Device) -> DeviceId raise @errors.InputError {
 }
 
 ///|
+fn NativeDevice::capability_bitmap(
+  self : NativeDevice,
+  event_type : Int,
+) -> Bytes raise @errors.InputError {
+  // 1024 bits covers every current evdev code family while retaining room for
+  // future kernel additions. The ioctl reports the actual number of bytes used.
+  let buffer : FixedArray[Byte] = FixedArray::make(128, b'\x00')
+  let length = self.write_capability_bits(event_type, buffer)
+  if length < 0 {
+    raise_ioctl_error("EVIOCGBIT", -length)
+  }
+  Bytes::makei(length, index => buffer[index])
+}
+
+///|
+fn NativeDevice::absolute_axis_info(
+  self : NativeDevice,
+  axis : @codes.AbsoluteAxis,
+) -> AbsoluteAxisInfo raise @errors.InputError {
+  let values = self.absolute_axis_values(axis.to_linux())
+  if values[0] != 0 {
+    raise_ioctl_error("EVIOCGABS(\{axis.to_linux()})", values[1])
+  }
+  {
+    value: values[2],
+    minimum: values[3],
+    maximum: values[4],
+    fuzz: values[5],
+    flat: values[6],
+    resolution: values[7],
+  }
+}
+
+///|
+/// Query typed event, key, axis, switch, and LED capabilities.
+pub fn Device::capabilities(
+  self : Device,
+) -> DeviceCapabilities raise @errors.InputError {
+  let decoded = decode_capability_bitmaps(
+    self.native.capability_bitmap(0),
+    self.native.capability_bitmap(1),
+    self.native.capability_bitmap(2),
+    self.native.capability_bitmap(3),
+    self.native.capability_bitmap(5),
+    self.native.capability_bitmap(17),
+  )
+  let absolute_axes : Array[AbsoluteAxisCapability] = []
+  for entry in decoded.absolute_axes {
+    absolute_axes.push({
+      axis: entry.axis,
+      info: Some(self.native.absolute_axis_info(entry.axis)),
+    })
+  }
+  {
+    event_types: decoded.event_types,
+    keys: decoded.keys,
+    relative_axes: decoded.relative_axes,
+    absolute_axes,
+    switches: decoded.switches,
+    leds: decoded.leds,
+  }
+}
+
+///|
 /// Read one ABI-normalized raw event from the device.
 pub fn Device::read_raw(
   self : Device,

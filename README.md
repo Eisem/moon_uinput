@@ -91,6 +91,15 @@ for ;; {
 }
 ```
 
+## Device information and capabilities
+
+Inspect the kernel-advertised event families, keys, axes, switches, LEDs, and
+absolute-axis metadata without guessing from the device name:
+
+```bash
+moon run examples/device_info -- /dev/input/event4
+```
+
 `Device` and `EventStream` values share the same native handle. Closing one
 invalidates every value derived from that device; later operations raise
 `DeviceClosed`. Calls on a shared handle must be serialized by the application;

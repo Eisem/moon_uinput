@@ -1,4 +1,5 @@
 import {
+  "mooninput/src/codes",
   "mooninput/src/event",
   "mooninput/src/errors",
   "moonbitlang/core/encoding/utf8",

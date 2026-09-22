@@ -132,6 +132,57 @@ mooninput_evdev_id(mooninput_evdev_device *device) {
   return result;
 }
 
+MOONBIT_FFI_EXPORT int32_t mooninput_evdev_capability_bits(
+    mooninput_evdev_device *device, int32_t event_type, uint8_t *buffer) {
+#ifdef __linux__
+  if (device->fd < 0) {
+    return -EBADF;
+  }
+  uint32_t capacity = Moonbit_array_length(buffer);
+  if (capacity == 0) {
+    return -EINVAL;
+  }
+  memset(buffer, 0, capacity);
+  int result = ioctl(device->fd, EVIOCGBIT(event_type, capacity), buffer);
+  return result < 0 ? -errno : result;
+#else
+  (void)device;
+  (void)event_type;
+  (void)buffer;
+  return -38;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t *
+mooninput_evdev_absolute_axis(mooninput_evdev_device *device, int32_t code) {
+  int32_t *result = moonbit_make_int32_array(8, 0);
+#ifdef __linux__
+  struct input_absinfo info;
+  if (device->fd < 0) {
+    result[0] = -1;
+    result[1] = EBADF;
+    return result;
+  }
+  if (ioctl(device->fd, EVIOCGABS(code), &info) < 0) {
+    result[0] = -1;
+    result[1] = errno;
+    return result;
+  }
+  result[2] = info.value;
+  result[3] = info.minimum;
+  result[4] = info.maximum;
+  result[5] = info.fuzz;
+  result[6] = info.flat;
+  result[7] = info.resolution;
+#else
+  (void)device;
+  (void)code;
+  result[0] = -1;
+  result[1] = 38;
+#endif
+  return result;
+}
+
 MOONBIT_FFI_EXPORT int64_t *
 mooninput_evdev_read(mooninput_evdev_device *device) {
   int64_t *result = moonbit_make_int64_array(7, 0);
