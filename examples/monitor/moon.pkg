@@ -1,0 +1,10 @@
+import {
+  "mooninput/src/errors",
+  "mooninput/src/evdev",
+  "mooninput/src/event",
+  "moonbitlang/core/env",
+}
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")
