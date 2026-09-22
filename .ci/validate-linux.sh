@@ -25,9 +25,9 @@ gcc -std=gnu11 -Wall -Wextra -Werror \
   -I"$HOME/.moon/include" \
   -c src/evdev/linux_input.c \
   -o "$validation_dir/linux_input.strict.o"
-moon check --warn-list +unnecessary_annotation
-moon test --target native -v
-moon build --target native
+moon check --warn-list +unnecessary_annotation --deny-warn
+moon test --target native --deny-warn -v
+moon build --target native --deny-warn
 moon info --target native
 monitor_output="$(
   moon run examples/monitor -- /dev/input/mooninput-does-not-exist
