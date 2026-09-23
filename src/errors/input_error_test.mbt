@@ -17,6 +17,14 @@ test "input errors have actionable messages" {
     content="Input device is closed",
   )
   inspect(
+    @errors.InputError::AlreadyGrabbed(path="/dev/input/event4").describe(),
+    content="Input device is already grabbed: /dev/input/event4",
+  )
+  inspect(
+    @errors.InputError::NotGrabbed(path="/dev/input/event4").describe(),
+    content="Input device is not grabbed: /dev/input/event4",
+  )
+  inspect(
     @errors.InputError::OpenFailed(path="/dev/input/event4", errno=16).describe(),
     content="Opening /dev/input/event4 failed with errno 16",
   )

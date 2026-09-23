@@ -82,3 +82,43 @@ test "packet stream propagates disconnection without yielding partial frames" {
     }
   }
 }
+
+///|
+#cfg(all(target="native", not(platform="windows")))
+test "device grab validates lifecycle and reports non-evdev ioctls" {
+  try @evdev.Device::open("/dev/null") catch {
+    UnsupportedPlatform => ()
+    error => fail("opening /dev/null failed unexpectedly: \{error.describe()}")
+  } noraise {
+    device => {
+      try device.ungrab() catch {
+        NotGrabbed(path~) => assert_eq(path, "/dev/null")
+        _ => fail("expected NotGrabbed from /dev/null")
+      } noraise {
+        _ => fail("expected NotGrabbed from /dev/null")
+      }
+      try device.grab() catch {
+        IoctlFailed(operation~, errno~) => {
+          assert_eq(operation, "EVIOCGRAB")
+          assert_eq(errno, 25)
+        }
+        _ => fail("expected an unsupported EVIOCGRAB ioctl on /dev/null")
+      } noraise {
+        _ => fail("expected EVIOCGRAB to fail on /dev/null")
+      }
+      device.close()
+      try device.grab() catch {
+        DeviceClosed => ()
+        _ => fail("expected DeviceClosed from grab")
+      } noraise {
+        _ => fail("expected DeviceClosed from grab")
+      }
+      try device.ungrab() catch {
+        DeviceClosed => ()
+        _ => fail("expected DeviceClosed from ungrab")
+      } noraise {
+        _ => fail("expected DeviceClosed from ungrab")
+      }
+    }
+  }
+}

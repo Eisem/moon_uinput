@@ -24,7 +24,7 @@
 - [x] FFI 参数补齐新版编译器要求的 `#borrow` 所有权注解。
 - [x] Windows 严格检查与 WSL2 Ubuntu 原生验证。
 - [x] GitHub Actions Linux native CI 配置。
-- [x] 已建立连续、可追踪的有效提交历史；当前 6 个，目标至少 10 个。
+- [x] 已建立连续、可追踪的有效提交历史；当前 7 个，目标至少 10 个。
 
 ## 实施顺序
 
@@ -64,10 +64,10 @@
 
 ### 5. EVIOCGRAB（计划 Commit 7）
 
-- [ ] 实现 `Device::grab()` 与 `Device::ungrab()`。
-- [ ] close/finalizer 保证释放文件描述符。
-- [ ] 明确重复 grab、重复 ungrab 和设备断开的错误行为。
-- [ ] monitor 示例保持默认不 grab。
+- [x] 实现 `Device::grab()` 与 `Device::ungrab()`。
+- [x] close/finalizer 关闭文件描述符时由内核释放 grab。
+- [x] 明确重复 grab、重复 ungrab、关闭和设备断开的错误行为。
+- [x] monitor 示例保持默认不 grab。
 
 ### 6. uinput Core（计划 Commit 8）
 
@@ -123,7 +123,7 @@
 
 ## 当前指标
 
-- 有效提交：6 / 10（最低要求）。
-- 源码与测试代码：约 2,363 / 4,000–10,000 行。
-- 自动化测试：Windows 20/20；WSL2 Ubuntu 21/21。
-- 当前工作项：EVIOCGRAB 独占读取。
+- 有效提交：7 / 10（最低要求）。
+- 源码与测试代码：约 2,485 / 4,000–10,000 行。
+- 自动化测试：Windows 20/20；WSL2 Ubuntu 22/22。
+- 当前工作项：uinput Core 与虚拟设备生命周期。

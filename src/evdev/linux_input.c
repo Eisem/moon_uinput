@@ -14,6 +14,7 @@
 typedef struct {
   int fd;
   int open_error;
+  int grabbed;
 } mooninput_evdev_device;
 
 static void mooninput_evdev_finalize(void *self) {
@@ -34,6 +35,7 @@ mooninput_evdev_open(moonbit_bytes_t path) {
       mooninput_evdev_finalize, sizeof(mooninput_evdev_device));
   device->fd = -1;
   device->open_error = 0;
+  device->grabbed = 0;
 #ifdef __linux__
   uint32_t path_len = Moonbit_array_length(path);
   if (memchr(path, '\0', path_len) != NULL) {
@@ -75,6 +77,7 @@ mooninput_evdev_close(mooninput_evdev_device *device) {
   }
   int fd = device->fd;
   device->fd = -1;
+  device->grabbed = 0;
   if (close(fd) < 0) {
     return errno;
   }
@@ -82,6 +85,30 @@ mooninput_evdev_close(mooninput_evdev_device *device) {
 #else
   (void)device;
   return 0;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t
+mooninput_evdev_grab(mooninput_evdev_device *device, int32_t grab) {
+#ifdef __linux__
+  if (device->fd < 0) {
+    return EBADF;
+  }
+  if (grab && device->grabbed) {
+    return EALREADY;
+  }
+  if (!grab && !device->grabbed) {
+    return EINVAL;
+  }
+  if (ioctl(device->fd, EVIOCGRAB, grab ? 1 : 0) < 0) {
+    return errno;
+  }
+  device->grabbed = grab != 0;
+  return 0;
+#else
+  (void)device;
+  (void)grab;
+  return 38;
 #endif
 }
 

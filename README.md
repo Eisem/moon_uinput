@@ -114,6 +114,11 @@ KEY A RELEASED
 SYN Report
 ```
 
+Applications may opt into exclusive access with `device.grab()` and release it
+with `device.ungrab()`. Closing the device also releases the kernel grab. A
+grab redirects input away from other handlers, so it should be used only when
+the application intentionally owns that device.
+
 The current API can also be used directly:
 
 ```moonbit
@@ -190,13 +195,12 @@ framework, or support non-Linux operating systems.
 ## Known limitations of the current slice
 
 - event reading is blocking and synchronous;
-- `EVIOCGRAB` and uinput virtual devices are not implemented.
+- uinput virtual devices are not implemented.
 
 ## Roadmap
 
-1. P7: explicit grab/ungrab;
-2. P8–P10: uinput keyboard, mouse, and remapper pipeline;
-3. asynchronous event reading after the synchronous correctness baseline.
+1. P8–P10: uinput keyboard, mouse, and remapper pipeline;
+2. asynchronous event reading after the synchronous correctness baseline.
 
 ## License
 

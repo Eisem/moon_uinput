@@ -18,6 +18,10 @@ extern "C" fn NativeDevice::is_open(self : NativeDevice) -> Bool = "mooninput_ev
 extern "C" fn NativeDevice::close(self : NativeDevice) -> Int = "mooninput_evdev_close"
 
 ///|
+#borrow(self)
+extern "C" fn NativeDevice::grab(self : NativeDevice, enabled : Bool) -> Int = "mooninput_evdev_grab"
+
+///|
 #borrow(self, buffer)
 extern "C" fn NativeDevice::write_name(
   self : NativeDevice,

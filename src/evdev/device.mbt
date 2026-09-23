@@ -48,6 +48,21 @@ fn raise_ioctl_error(
 }
 
 ///|
+fn raise_grab_error(
+  path : String,
+  errno : Int,
+  grabbing : Bool,
+) -> Unit raise @errors.InputError {
+  match errno {
+    9 => raise DeviceClosed
+    19 => raise DeviceDisconnected
+    114 if grabbing => raise AlreadyGrabbed(path~)
+    22 if !grabbing => raise NotGrabbed(path~)
+    _ => raise IoctlFailed(operation="EVIOCGRAB", errno~)
+  }
+}
+
+///|
 /// Open a Linux `/dev/input/eventX` node for reading.
 pub fn Device::open(path : String) -> Device raise @errors.InputError {
   let path_bytes = @utf8.encode(path)
@@ -77,6 +92,30 @@ pub fn Device::close(self : Device) -> Unit raise @errors.InputError {
   let errno = self.native.close()
   if errno != 0 {
     raise CloseFailed(errno~)
+  }
+}
+
+///|
+/// Exclusively grab this input device until `ungrab` or `close`.
+///
+/// Repeating `grab` raises `AlreadyGrabbed`. The kernel releases the grab when
+/// the descriptor closes, including when its native finalizer runs.
+pub fn Device::grab(self : Device) -> Unit raise @errors.InputError {
+  let errno = self.native.grab(true)
+  if errno != 0 {
+    raise_grab_error(self.path, errno, true)
+  }
+}
+
+///|
+/// Release a grab acquired with `grab`.
+///
+/// Repeating `ungrab` raises `NotGrabbed`; a closed or disconnected device
+/// raises the corresponding structured error.
+pub fn Device::ungrab(self : Device) -> Unit raise @errors.InputError {
+  let errno = self.native.grab(false)
+  if errno != 0 {
+    raise_grab_error(self.path, errno, false)
   }
 }
 

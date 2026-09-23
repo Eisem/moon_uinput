@@ -7,6 +7,8 @@ pub(all) suberror InputError {
   OpenFailed(path~ : String, errno~ : Int)
   DeviceClosed
   DeviceDisconnected
+  AlreadyGrabbed(path~ : String)
+  NotGrabbed(path~ : String)
   UnsupportedPlatform
   DiscoveryFailed(directory~ : String, reason~ : String)
   IoctlFailed(operation~ : String, errno~ : Int)
@@ -30,6 +32,8 @@ pub fn InputError::describe(self : InputError) -> String {
     OpenFailed(path~, errno~) => "Opening \{path} failed with errno \{errno}"
     DeviceClosed => "Input device is closed"
     DeviceDisconnected => "Input device disconnected"
+    AlreadyGrabbed(path~) => "Input device is already grabbed: \{path}"
+    NotGrabbed(path~) => "Input device is not grabbed: \{path}"
     UnsupportedPlatform => "MoonInput evdev requires Linux"
     DiscoveryFailed(directory~, reason~) =>
       "Discovering input devices in \{directory} failed: \{reason}"
