@@ -4,9 +4,9 @@ MoonInput is a native MoonBit library for the Linux Input Subsystem. It aims
 to provide typed evdev event consumption and uinput virtual-device creation
 without exposing Linux ABI details throughout application code.
 
-This repository currently implements typed evdev input, state recovery,
-exclusive device grabs, a uinput virtual-device core, and virtual keyboard
-output:
+The `eisem/mooninput` module implements typed evdev input, synchronous and
+asynchronous reading, state recovery, exclusive device grabs, validated uinput
+output, and a small CapsLock navigation remapper:
 
 - MoonBit project and package structure;
 - a small C shim that isolates `struct input_event` and ioctl ABI handling;
@@ -26,10 +26,16 @@ output:
 - state snapshots and `Device::synced_packets()` recovery after `SYN_DROPPED`;
 - opt-in `Device::grab()` / `ungrab()` with structured lifecycle errors;
 - validated uinput device creation and cleanup;
-- synchronized key-down, key-up, and click output;
-- synthetic decoder tests that require no input hardware.
+- synchronized keyboard and mouse output, with every emitted event checked
+  against the capabilities advertised during uinput creation;
+- a CapsLock + H/J/K/L → Left/Down/Up/Right remapper with release and
+  `SYN_DROPPED` reconciliation;
+- async event, packet, and recovered-packet streams backed by a duplicated
+  descriptor and no background reader task;
+- hardware-independent tests and an opt-in real uinput/evdev round-trip test.
 
-Asynchronous reading and the remapper remain planned work.
+The C shims isolate Linux ABI and file-descriptor operations. Event decoding,
+packetization, output policy, and remapping are implemented in MoonBit.
 
 ## Architecture
 
@@ -47,7 +53,7 @@ RawEvent (stable MoonBit fields)
 typed decoder
         │
         ▼
-InputEvent / EventStream
+InputEvent / EventStream or AsyncEventStream
 ```
 
 MoonBit owns the public model, decoding, streaming abstraction, and error
@@ -57,19 +63,24 @@ the platform `struct input_event` into stable integer fields.
 ## Requirements and installation
 
 - Linux with evdev enabled;
-- MoonBit `0.1.20260920` or newer;
+- MoonBit `0.1.20260920` or newer, with `moonbitlang/async@0.22.1`;
 - a native C compiler and Linux input headers.
 
 Clone the project and validate it with:
 
 ```bash
-moon check --warn-list +unnecessary_annotation
-moon test --target native
-moon build --target native
+moon update
+moon check --warn-list +unnecessary_annotation --deny-warn
+moon test --target native --deny-warn
+moon build --target native --deny-warn
 ```
 
 The event model and decoder tests are hardware-independent. Live evdev access
 requires Linux and a readable event device.
+
+The package can be imported as `eisem/mooninput/src/evdev`,
+`eisem/mooninput/src/event`, or `eisem/mooninput/src/uinput`. See the
+[`examples`](examples) directory for runnable programs.
 
 ## Event monitor
 
@@ -143,11 +154,30 @@ absolute-axis metadata without guessing from the device name:
 moon run examples/device_info -- /dev/input/event4
 ```
 
-`Device`, `EventStream`, and `DevicePacketStream` values share the same native
-handle. Closing the device invalidates every stream derived from it; later
-operations raise `DeviceClosed`. Calls on a shared handle must be serialized
-by the application; concurrent reads or a read racing with `close` are not
-supported.
+Blocking `EventStream` and `DevicePacketStream` values share their device's
+native handle. Closing that device invalidates both. Async streams duplicate
+the descriptor and own the duplicate independently; close the stream and the
+original device explicitly. They still compete for the same kernel event
+queue, so do not read from both simultaneously. Concurrent calls to `next` on
+one stream are unsupported.
+
+## Async monitoring
+
+The async API uses `moonbitlang/async/raw_fd` and reads the kernel's native
+`input_event` size without hard-coding a 32/64-bit layout. It handles short
+reads and awaits I/O without creating an unmanaged background task. On
+cancellation, a partially filled record remains buffered for a later read.
+`Device::async_synced_packets()` additionally performs the same
+`SYN_DROPPED` state recovery as the blocking packet stream; keep the original
+device open for its state-query ioctl.
+
+```bash
+moon run examples/async_monitor -- /dev/input/event4
+```
+
+The example prints complete frames and recovery snapshots and does not grab
+the device. The async API is currently Linux-only; Windows native builds keep
+the API surface but report `UnsupportedPlatform` on opening a stream.
 
 ## Permissions
 
@@ -197,12 +227,14 @@ framework, or support non-Linux operating systems.
 
 ## Creating virtual devices
 
-`@mooninput/src/uinput.VirtualDeviceBuilder` configures a virtual device name,
+`@uinput.VirtualDeviceBuilder` configures a virtual device name,
 Linux identity and typed key/relative/absolute-axis capabilities. `validate()`
 checks the configuration without requiring `/dev/uinput`; `create()` applies it
 through the Linux uinput ioctls. Duplicate capabilities are ignored, and the
 first setup for a repeated absolute axis wins. `VirtualDevice::close()` destroys
 the kernel device and closes its descriptor; the native finalizer is a fallback.
+`emit()` rejects unadvertised key, relative-axis, and absolute-axis codes
+before calling `write`; only `SYN_REPORT` is accepted as a sync event.
 
 Creating a device requires Linux and access to `/dev/uinput` (often via the
 `uinput` kernel module and an appropriate group/udev policy). MoonInput does not
@@ -219,15 +251,60 @@ clicks its left button. `move_by(dx, dy)` groups both relative-axis events into
 one frame, while button helpers end each press/release frame with SYN_REPORT.
 Running it moves the host pointer and clicks in the active desktop session.
 
-## Known limitations of the current slice
+## CapsLock navigation remapper
 
-- event reading is blocking and synchronous;
-- remapper is not implemented.
+```bash
+moon run examples/remapper -- /dev/input/event4
+```
+
+Hold CapsLock while pressing H/J/K/L to emit Left/Down/Up/Right. Other keys
+pass through; CapsLock itself is consumed. A key pressed before changing the
+layer keeps its original output mapping until release. The remapper tracks
+overlapping physical and mapped arrow-key holds, reconciles state after
+`SYN_DROPPED`, and releases output keys on a handled error. It checks the
+selected device's name and identity to avoid reading its own virtual output.
+
+This program **grabs the specified input device** and creates a virtual
+keyboard. On a real desktop, this affects keyboard input immediately. Choose
+the source path explicitly, test from a recoverable terminal, and do not use
+the remapper on a keyboard needed to regain access to that same terminal.
+The example is a foreground process, not a daemon or startup service.
+
+## Real uinput round-trip (opt-in)
+
+The `examples/uinput_roundtrip` program creates a one-key virtual device,
+discovers its evdev node through `UI_GET_SYSNAME`, and verifies both blocking
+and async press/release readback. It neither injects a physical key nor grabs
+a physical device. The test is not part of normal CI because access to
+`/dev/uinput` varies by host. In an existing WSL2 Ubuntu installation where
+`/dev/uinput` is root-only, run:
+
+```bash
+sudo env PATH="$HOME/.moon/bin:$PATH" \
+  bash .ci/validate-uinput.sh "$PWD"
+```
+
+The script builds a temporary copy under `/tmp` as the source-directory owner,
+runs only the short-lived test executable with root device access, and cleans
+up its own temporary directory. It does not install Docker, change udev
+permissions, or alter the project's Git history.
+
+## Known limitations
+
+- The async library's generic I/O and cancellation errors are propagated as
+  generic `Error`; sync evdev methods provide structured `InputError` values.
+- The remapper forwards key events only and uses a fixed CapsLock/H/J/K/L
+  mapping; it is not a configurable desktop input daemon.
+- Hardware readout and grabbing need Linux device access. A regular CI runner
+  can still validate pure logic and compilation without `/dev/uinput`.
 
 ## Roadmap
 
-1. P11–P12: remapper and release pipeline;
-2. asynchronous event reading after the synchronous correctness baseline.
+1. Add an opt-in, configurable mapping format and safer interactive device
+   selection to the remapper.
+2. Extend typed output to switches, LEDs, and force feedback where supported.
+3. Publish the GitHub repository and mooncakes.io module after final account
+   and repository details are confirmed.
 
 ## License
 
