@@ -21,6 +21,7 @@ tar --exclude=./_build --exclude=./.git -cf - . \
 cd "$validation_dir"
 echo "validation_dir=$validation_dir"
 moon version --all
+moon update
 gcc -std=gnu11 -Wall -Wextra -Werror \
   -I"$HOME/.moon/include" \
   -c src/evdev/linux_input.c \
@@ -34,4 +35,9 @@ monitor_output="$(
 )"
 echo "$monitor_output"
 grep -F "Input device not found" <<<"$monitor_output" >/dev/null
+listing_output="$(
+  moon run examples/list_devices -- /dev/input/mooninput-does-not-exist
+)"
+echo "$listing_output"
+grep -F "Discovering input devices" <<<"$listing_output" >/dev/null
 echo "LINUX_VALIDATION_OK"

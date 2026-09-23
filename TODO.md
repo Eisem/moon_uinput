@@ -1,6 +1,6 @@
 # MoonInput 参赛开发 TODO
 
-更新时间：2026-09-22
+更新时间：2026-09-23
 
 ## 硬性目标
 
@@ -24,7 +24,7 @@
 - [x] FFI 参数补齐新版编译器要求的 `#borrow` 所有权注解。
 - [x] Windows 严格检查与 WSL2 Ubuntu 原生验证。
 - [x] GitHub Actions Linux native CI 配置。
-- [x] 已建立连续、可追踪的有效提交历史；当前 3 个，目标至少 10 个。
+- [x] 已建立连续、可追踪的有效提交历史；当前 4 个，目标至少 10 个。
 
 ## 实施顺序
 
@@ -41,10 +41,10 @@
 
 ### 2. Device Discovery（计划 Commit 4）
 
-- [ ] 安全枚举 `/dev/input/event*`，不猜测固定编号。
-- [ ] 单个设备权限失败时继续列出其他设备并展示原因。
-- [ ] 添加 `examples/list_devices`。
-- [ ] 为路径排序、过滤和错误聚合添加测试。
+- [x] 安全枚举 `/dev/input/event*`，不猜测固定编号。
+- [x] 单个设备权限失败时继续列出其他设备并展示原因。
+- [x] 添加 `examples/list_devices`。
+- [x] 为路径排序、过滤和错误聚合添加测试。
 
 ### 3. Event Packetization（计划 Commit 5）
 
@@ -123,7 +123,7 @@
 
 ## 当前指标
 
-- 有效提交：3 / 10（最低要求）。
-- 源码与测试代码：约 1,745 / 4,000–10,000 行。
-- 自动化测试：Windows 10/10；WSL2 Ubuntu 10/10。
-- 当前工作项：Device Discovery 与 list_devices 示例。
+- 有效提交：4 / 10（最低要求）。
+- 源码与测试代码：约 1,943 / 4,000–10,000 行。
+- 自动化测试：Windows 13/13；WSL2 Ubuntu 13/13。
+- 当前工作项：Event Packetization 与 `SYN_REPORT` 分帧。

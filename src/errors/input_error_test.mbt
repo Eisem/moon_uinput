@@ -20,4 +20,11 @@ test "input errors have actionable messages" {
     @errors.InputError::OpenFailed(path="/dev/input/event4", errno=16).describe(),
     content="Opening /dev/input/event4 failed with errno 16",
   )
+  inspect(
+    @errors.InputError::DiscoveryFailed(
+      directory="/dev/input",
+      reason="directory missing",
+    ).describe(),
+    content="Discovering input devices in /dev/input failed: directory missing",
+  )
 }

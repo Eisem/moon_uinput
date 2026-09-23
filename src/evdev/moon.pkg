@@ -3,6 +3,7 @@ import {
   "mooninput/src/event",
   "mooninput/src/errors",
   "moonbitlang/core/encoding/utf8",
+  "moonbitlang/x/fs",
 }
 
 supported_targets = "native"

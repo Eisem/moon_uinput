@@ -9,3 +9,7 @@ license = "MIT"
 description = "Typed native MoonBit bindings for Linux evdev and uinput"
 
 preferred_target = "native"
+
+import {
+  "moonbitlang/x@0.5.5",
+}

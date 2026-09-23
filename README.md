@@ -4,7 +4,8 @@ MoonInput is a native MoonBit library for the Linux Input Subsystem. It aims
 to provide typed evdev event consumption and uinput virtual-device creation
 without exposing Linux ABI details throughout application code.
 
-This repository currently implements the first delivery slice, **P0–P3**:
+This repository currently implements the first delivery slice, **P0–P4 plus
+device discovery**:
 
 - MoonBit project and package structure;
 - a small C shim that isolates `struct input_event` and ioctl ABI handling;
@@ -12,14 +13,17 @@ This repository currently implements the first delivery slice, **P0–P3**:
   input events;
 - evdev open, close, name, device ID, raw event reading, and typed event
   reading;
+- safe `/dev/input/eventN` discovery with natural numeric ordering and
+  per-device failure isolation;
+- typed capability bitmaps and absolute-axis metadata;
 - structured permission, missing-device, disconnection, ioctl, read, and
   unsupported-platform errors, including explicit closed-device and invalid
   path reporting;
-- a blocking `EventStream` and monitor example;
+- a blocking `EventStream`, device-listing, monitor, and capability examples;
 - synthetic decoder tests that require no input hardware.
 
-Capabilities, packetization, `SYN_DROPPED` recovery, grabbing, asynchronous
-reading, and uinput are later milestones and are not claimed by this slice.
+Packetization, `SYN_DROPPED` recovery, grabbing, asynchronous reading, and
+uinput are later milestones and are not claimed by this slice.
 
 ## Architecture
 
@@ -62,6 +66,21 @@ The event model and decoder tests are hardware-independent. Live evdev access
 requires Linux and a readable event device.
 
 ## Event monitor
+
+List actual event nodes before selecting one:
+
+```bash
+moon run examples/list_devices
+```
+
+The listing reads directory entries instead of guessing a fixed event-number
+range. Devices that disappear or cannot be opened remain in the output with a
+structured reason; they do not stop later devices from being inspected. A
+different input directory can be supplied for diagnostics:
+
+```bash
+moon run examples/list_devices -- /dev/input
+```
 
 Choose a device explicitly and run:
 
@@ -151,22 +170,20 @@ MoonInput does not aim to replace libinput, implement a desktop input stack,
 provide Wayland or X11 APIs, become a complete remapping daemon or automation
 framework, or support non-Linux operating systems.
 
-## Known limitations of the P0–P3 slice
+## Known limitations of the current slice
 
 - event reading is blocking and synchronous;
-- capabilities and absolute-axis metadata are not queried yet;
 - events are not yet grouped at `SYN_REPORT` boundaries;
 - `SYN_DROPPED` is decoded but state recovery is not yet implemented;
 - `EVIOCGRAB` and uinput virtual devices are not implemented.
 
 ## Roadmap
 
-1. P4: capability bitmaps and absolute-axis metadata;
-2. P5: event packetization at `SYN_REPORT`;
-3. P6: `SYN_DROPPED` state recovery;
-4. P7: explicit grab/ungrab;
-5. P8–P10: uinput keyboard, mouse, and remapper pipeline;
-6. asynchronous event reading after the synchronous correctness baseline.
+1. P5: event packetization at `SYN_REPORT`;
+2. P6: `SYN_DROPPED` state recovery;
+3. P7: explicit grab/ungrab;
+4. P8–P10: uinput keyboard, mouse, and remapper pipeline;
+5. asynchronous event reading after the synchronous correctness baseline.
 
 ## License
 

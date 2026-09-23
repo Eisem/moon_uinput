@@ -8,6 +8,7 @@ pub(all) suberror InputError {
   DeviceClosed
   DeviceDisconnected
   UnsupportedPlatform
+  DiscoveryFailed(directory~ : String, reason~ : String)
   IoctlFailed(operation~ : String, errno~ : Int)
   ReadFailed(errno~ : Int)
   CloseFailed(errno~ : Int)
@@ -30,6 +31,8 @@ pub fn InputError::describe(self : InputError) -> String {
     DeviceClosed => "Input device is closed"
     DeviceDisconnected => "Input device disconnected"
     UnsupportedPlatform => "MoonInput evdev requires Linux"
+    DiscoveryFailed(directory~, reason~) =>
+      "Discovering input devices in \{directory} failed: \{reason}"
     IoctlFailed(operation~, errno~) => "\{operation} failed with errno \{errno}"
     ReadFailed(errno~) => "Reading input event failed with errno \{errno}"
     CloseFailed(errno~) => "Closing input device failed with errno \{errno}"
