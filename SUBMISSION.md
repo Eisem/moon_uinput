@@ -6,4 +6,4 @@ MoonInput 是一个以 MoonBit 为主体实现的 Linux 输入子系统库，目
 
 测试覆盖纯状态机与 ABI 边界，可在没有物理键盘的 CI 环境运行。另有需要明确设备权限的可选回环测试：在现有 WSL2 Ubuntu 中创建 uinput 设备，通过 evdev 分别以同步和异步方式读回按下/释放事件。项目采用 MIT 许可证，保留持续提交历史，并提供安全与权限说明。
 
-拟使用的 GitHub 仓库为 https://github.com/Eisem/moon_uinput 。提交前仍需确认仓库公开可访问、默认分支 CI 通过、mooncakes.io 包可安装，以及参赛者本人对上述介绍的审阅与改写。请勿把尚未完成的发布步骤写成已完成。
+拟使用的 GitHub 仓库为 https://github.com/Eisem/moon_uinput ，已确认公开，但当前还是空仓库。提交前仍需推送现有提交、确认默认分支 CI 通过、验证 mooncakes.io 包可安装，以及参赛者本人对上述介绍的审阅与改写。请勿把尚未完成的发布步骤写成已完成。

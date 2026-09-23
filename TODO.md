@@ -6,7 +6,7 @@
 
 - [x] 有效源码与测试代码达到 4,000–10,000 行，不使用重复或填充代码凑数。
 - [x] Git 历史至少包含 10 个有实质意义的提交，不使用空提交或机械拆分。
-- [ ] GitHub 仓库公开可访问，默认分支 CI 全绿。
+- [ ] GitHub 仓库已确认公开，但目前为空；待推送后验证默认分支 CI 全绿。
 - [x] MoonBit 是主要实现语言，C 仅承担 Linux ABI 与 ioctl 薄封装。
 - [x] 使用 OSI 认可的 MIT 许可证。
 - [x] README 覆盖目标、安装、使用、示例、权限、安全、限制和路线图。
@@ -128,5 +128,6 @@
 - 自动化测试：Windows 48/48；WSL2 Ubuntu 51/51；Linux 严格 C 编译通过。
 - 真实 uinput 同步与异步回环：已在现有 WSL2 Ubuntu 中成功运行，未使用 Docker 或修改设备权限。
 - 包名已调整为 `eisem/mooninput`，`moon package --list` 通过；Windows MoonBit 已登录 `eisem`，WSL 未登录。
-- 已配置 GitHub 远端 `https://github.com/Eisem/moon_uinput.git`，并填写 MoonBit 仓库元数据；远端内容和公开状态尚未验证，尚未推送。
-- 剩余外部步骤：验证远端并安全推送、确认公开状态与 CI、打标签、发布 mooncakes.io、参赛者审阅申报书。
+- 已配置 GitHub 远端 `https://github.com/Eisem/moon_uinput.git`，并填写 MoonBit 仓库元数据；GitHub 连接已确认它是 `Eisem` 拥有的公开空仓库（无分支），尚未推送。
+- 本机 GitHub CLI 未登录；HTTPS 连接超时，SSH 可达但没有可用公钥。需要先完成本机 Git 身份验证，才能保留现有提交历史推送。
+- 剩余外部步骤：安全推送现有提交、确认默认分支 CI、打标签、发布 mooncakes.io、参赛者审阅申报书。
