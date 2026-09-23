@@ -29,7 +29,7 @@ output:
 - synchronized key-down, key-up, and click output;
 - synthetic decoder tests that require no input hardware.
 
-Mouse output, asynchronous reading, and the remapper remain planned work.
+Asynchronous reading and the remapper remain planned work.
 
 ## Architecture
 
@@ -214,14 +214,19 @@ finish a frame. The key helpers emit a SYN_REPORT after each state change.
 Running the example injects a real key into the desktop session, so only run it
 when that behavior is intended.
 
+The `examples/virtual_mouse` program creates a relative mouse, moves it, and
+clicks its left button. `move_by(dx, dy)` groups both relative-axis events into
+one frame, while button helpers end each press/release frame with SYN_REPORT.
+Running it moves the host pointer and clicks in the active desktop session.
+
 ## Known limitations of the current slice
 
 - event reading is blocking and synchronous;
-- high-level virtual mouse helpers and remapper are not implemented.
+- remapper is not implemented.
 
 ## Roadmap
 
-1. P10–P12: uinput mouse, remapper, and release pipeline;
+1. P11–P12: remapper and release pipeline;
 2. asynchronous event reading after the synchronous correctness baseline.
 
 ## License

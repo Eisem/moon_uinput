@@ -86,10 +86,10 @@
 
 ### 8. Virtual Mouse（计划 Commit 10）
 
-- [ ] 支持 `REL_X`、`REL_Y` 和三种常见鼠标按钮。
-- [ ] 提供 `move_by()` 和按钮 helper。
-- [ ] 添加 `examples/virtual_mouse`。
-- [ ] 验证每组高层操作都正确发送 `SYN_REPORT`。
+- [x] 支持 `REL_X`、`REL_Y` 和三种常见鼠标按钮。
+- [x] 提供 `move_by()` 和按钮 down/up/click helper。
+- [x] 添加 `examples/virtual_mouse`。
+- [x] 验证位移、按下和释放帧都正确发送 `SYN_REPORT`。
 
 ### 9. Async API（计划 Commit 11）
 
@@ -123,7 +123,7 @@
 
 ## 当前指标
 
-- 有效提交：9 / 10（最低要求）。
-- 源码与测试代码：约 2,900 / 4,000–10,000 行。
+- 有效提交：10 / 10（达到最低要求）。
+- 源码与测试代码：约 3,100 / 4,000–10,000 行。
 - 自动化测试：Windows 与 WSL2 Ubuntu 待本轮整体验收；真实 uinput 创建受当前 WSL 设备权限限制。
-- 当前工作项：虚拟鼠标输出 API。
+- 当前工作项：CapsLock + H/J/K/L remapper 与代码量扩展。

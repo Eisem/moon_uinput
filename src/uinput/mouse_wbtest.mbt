@@ -1,0 +1,21 @@
+///|
+test "mouse button codes and movement frame use Linux ABI" {
+  assert_eq(button_code(Left), 0x110)
+  assert_eq(button_code(Right), 0x111)
+  assert_eq(button_code(Middle), 0x112)
+  let movement = movement_frame(12, -4)
+  assert_eq(movement.length(), 3)
+  assert_eq(movement[0].event_type, 2)
+  assert_eq(movement[0].code, 0)
+  assert_eq(movement[0].value, 12)
+  assert_eq(movement[1].code, 1)
+  assert_eq(movement[1].value, -4)
+  assert_eq(movement[2].event_type, 0)
+  let press = button_frame(Left, true)
+  let release = button_frame(Left, false)
+  assert_eq(press[0].code, 0x110)
+  assert_eq(press[0].value, 1)
+  assert_eq(press[1].code, 0)
+  assert_eq(release[0].value, 0)
+  assert_eq(release[1].event_type, 0)
+}
