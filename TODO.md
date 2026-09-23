@@ -128,4 +128,5 @@
 - 自动化测试：Windows 48/48；WSL2 Ubuntu 51/51；Linux 严格 C 编译通过。
 - 真实 uinput 同步与异步回环：已在现有 WSL2 Ubuntu 中成功运行，未使用 Docker 或修改设备权限。
 - 包名已调整为 `eisem/mooninput`，`moon package --list` 通过；Windows MoonBit 已登录 `eisem`，WSL 未登录。
-- 剩余外部步骤：建立并公开 GitHub 远端、填写真实仓库 URL、验证 CI、打标签、发布 mooncakes.io、参赛者审阅申报书。
+- 已配置 GitHub 远端 `https://github.com/Eisem/moon_uinput.git`，并填写 MoonBit 仓库元数据；远端内容和公开状态尚未验证，尚未推送。
+- 剩余外部步骤：验证远端并安全推送、确认公开状态与 CI、打标签、发布 mooncakes.io、参赛者审阅申报书。

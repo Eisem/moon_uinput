@@ -1,5 +1,7 @@
 # MoonInput
 
+[![Linux native CI](https://github.com/Eisem/moon_uinput/actions/workflows/ci.yml/badge.svg)](https://github.com/Eisem/moon_uinput/actions/workflows/ci.yml)
+
 MoonInput is a native MoonBit library for the Linux Input Subsystem. It aims
 to provide typed evdev event consumption and uinput virtual-device creation
 without exposing Linux ABI details throughout application code.
