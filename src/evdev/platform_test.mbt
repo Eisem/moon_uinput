@@ -54,6 +54,31 @@ test "evdev handles a closed descriptor predictably" {
       } noraise {
         _ => fail("expected DeviceClosed")
       }
+      try device.packets().next() catch {
+        DeviceClosed => ()
+        error => fail("unexpected packet stream error: \{error.describe()}")
+      } noraise {
+        _ => fail("expected DeviceClosed from packet stream")
+      }
+    }
+  }
+}
+
+///|
+#cfg(all(target="native", not(platform="windows")))
+test "packet stream propagates disconnection without yielding partial frames" {
+  try @evdev.Device::open("/dev/null") catch {
+    UnsupportedPlatform => ()
+    error => fail("opening /dev/null failed unexpectedly: \{error.describe()}")
+  } noraise {
+    device => {
+      try device.packets().next() catch {
+        DeviceDisconnected => ()
+        error => fail("unexpected packet stream error: \{error.describe()}")
+      } noraise {
+        _ => fail("expected DeviceDisconnected from /dev/null packet stream")
+      }
+      device.close()
     }
   }
 }

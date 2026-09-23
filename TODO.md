@@ -24,7 +24,7 @@
 - [x] FFI 参数补齐新版编译器要求的 `#borrow` 所有权注解。
 - [x] Windows 严格检查与 WSL2 Ubuntu 原生验证。
 - [x] GitHub Actions Linux native CI 配置。
-- [x] 已建立连续、可追踪的有效提交历史；当前 4 个，目标至少 10 个。
+- [x] 已建立连续、可追踪的有效提交历史；当前 5 个，目标至少 10 个。
 
 ## 实施顺序
 
@@ -48,11 +48,11 @@
 
 ### 3. Event Packetization（计划 Commit 5）
 
-- [ ] 定义 `EventPacket`。
-- [ ] 实现纯 MoonBit `Packetizer` 状态机。
-- [ ] 以 `SYN_REPORT` 结束一帧，明确空包策略。
-- [ ] 提供 `Device::packets()`。
-- [ ] 覆盖 REL、KEY、多包、未知同步码和流断开测试。
+- [x] 定义 `EventPacket`。
+- [x] 实现纯 MoonBit `Packetizer` 状态机。
+- [x] 以 `SYN_REPORT` 结束一帧，空帧跳过。
+- [x] 提供 `Device::packets()`。
+- [x] 覆盖 REL、KEY、多包、未知同步码和流断开测试。
 
 ### 4. SYN_DROPPED Recovery（计划 Commit 6）
 
@@ -123,7 +123,7 @@
 
 ## 当前指标
 
-- 有效提交：4 / 10（最低要求）。
-- 源码与测试代码：约 1,943 / 4,000–10,000 行。
-- 自动化测试：Windows 13/13；WSL2 Ubuntu 13/13。
-- 当前工作项：Event Packetization 与 `SYN_REPORT` 分帧。
+- 有效提交：5 / 10（最低要求）。
+- 源码与测试代码：约 2,165 / 4,000–10,000 行。
+- 自动化测试：Windows 17/17；WSL2 Ubuntu 18/18。
+- 当前工作项：SYN_DROPPED 状态恢复。

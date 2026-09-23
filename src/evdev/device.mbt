@@ -207,3 +207,13 @@ pub fn Device::read_event(
 pub fn Device::events(self : Device) -> EventStream {
   { device: self, }
 }
+
+///|
+/// Create a blocking stream that yields complete `SYN_REPORT` packets.
+///
+/// Empty frames are skipped. Use `events()` when individual sync markers are
+/// needed. If reading raises an I/O error, an incomplete frame is not returned;
+/// it remains pending if the caller retries the stream.
+pub fn Device::packets(self : Device) -> DevicePacketStream {
+  { device: self, packetizer: @event.Packetizer::new(), }
+}

@@ -4,7 +4,7 @@ MoonInput is a native MoonBit library for the Linux Input Subsystem. It aims
 to provide typed evdev event consumption and uinput virtual-device creation
 without exposing Linux ABI details throughout application code.
 
-This repository currently implements the first delivery slice, **P0–P4 plus
+This repository currently implements the first delivery slice, **P0–P5 plus
 device discovery**:
 
 - MoonBit project and package structure;
@@ -20,10 +20,12 @@ device discovery**:
   unsupported-platform errors, including explicit closed-device and invalid
   path reporting;
 - a blocking `EventStream`, device-listing, monitor, and capability examples;
+- a pure MoonBit packetizer and a blocking packet stream aligned to
+  `SYN_REPORT`;
 - synthetic decoder tests that require no input hardware.
 
-Packetization, `SYN_DROPPED` recovery, grabbing, asynchronous reading, and
-uinput are later milestones and are not claimed by this slice.
+`SYN_DROPPED` recovery, grabbing, asynchronous reading, and uinput are later
+milestones and are not claimed by this slice.
 
 ## Architecture
 
@@ -82,6 +84,13 @@ different input directory can be supplied for diagnostics:
 moon run examples/list_devices -- /dev/input
 ```
 
+Applications that need input frames instead of individual events can use
+`Device::packets()`. It returns the events preceding each non-empty
+`SYN_REPORT`, with the report timestamp attached to the packet. Empty frames
+are skipped; other synchronization events are preserved in the packet for
+higher layers to interpret. An I/O error propagates, and an incomplete packet
+is never emitted.
+
 Choose a device explicitly and run:
 
 ```bash
@@ -119,10 +128,11 @@ absolute-axis metadata without guessing from the device name:
 moon run examples/device_info -- /dev/input/event4
 ```
 
-`Device` and `EventStream` values share the same native handle. Closing one
-invalidates every value derived from that device; later operations raise
-`DeviceClosed`. Calls on a shared handle must be serialized by the application;
-concurrent reads or a read racing with `close` are not supported.
+`Device`, `EventStream`, and `DevicePacketStream` values share the same native
+handle. Closing the device invalidates every stream derived from it; later
+operations raise `DeviceClosed`. Calls on a shared handle must be serialized
+by the application; concurrent reads or a read racing with `close` are not
+supported.
 
 ## Permissions
 
@@ -173,17 +183,15 @@ framework, or support non-Linux operating systems.
 ## Known limitations of the current slice
 
 - event reading is blocking and synchronous;
-- events are not yet grouped at `SYN_REPORT` boundaries;
 - `SYN_DROPPED` is decoded but state recovery is not yet implemented;
 - `EVIOCGRAB` and uinput virtual devices are not implemented.
 
 ## Roadmap
 
-1. P5: event packetization at `SYN_REPORT`;
-2. P6: `SYN_DROPPED` state recovery;
-3. P7: explicit grab/ungrab;
-4. P8–P10: uinput keyboard, mouse, and remapper pipeline;
-5. asynchronous event reading after the synchronous correctness baseline.
+1. P6: `SYN_DROPPED` state recovery;
+2. P7: explicit grab/ungrab;
+3. P8–P10: uinput keyboard, mouse, and remapper pipeline;
+4. asynchronous event reading after the synchronous correctness baseline.
 
 ## License
 
