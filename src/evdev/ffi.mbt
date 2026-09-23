@@ -2,6 +2,16 @@
 type NativeDevice
 
 ///|
+#cfg(not(platform="windows"))
+extern "C" fn native_event_size() -> Int = "mooninput_evdev_event_size"
+
+///|
+#borrow(buffer)
+extern "C" fn native_decode_event(
+  buffer : FixedArray[Byte],
+) -> FixedArray[Int64] = "mooninput_evdev_decode_event"
+
+///|
 #borrow(path)
 extern "C" fn native_open(path : Bytes) -> NativeDevice = "mooninput_evdev_open"
 
@@ -12,6 +22,11 @@ extern "C" fn NativeDevice::open_error(self : NativeDevice) -> Int = "mooninput_
 ///|
 #borrow(self)
 extern "C" fn NativeDevice::is_open(self : NativeDevice) -> Bool = "mooninput_evdev_is_open"
+
+///|
+#cfg(not(platform="windows"))
+#borrow(self)
+extern "C" fn NativeDevice::duplicate_fd(self : NativeDevice) -> Int = "mooninput_evdev_duplicate_fd"
 
 ///|
 #borrow(self)

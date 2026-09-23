@@ -29,6 +29,9 @@ pub struct VirtualDeviceBuilder {
 ///|
 pub struct VirtualDevice {
   native : NativeVirtualDevice
+  keys : Array[Int]
+  relative_axes : Array[Int]
+  absolute_axes : Array[Int]
 }
 
 ///|
@@ -159,6 +162,7 @@ fn check_errno(
     match errno {
       1 | 13 => raise PermissionDenied(path="/dev/uinput")
       2 | 19 | 38 => raise DeviceNotFound(path="/dev/uinput")
+      9 => raise DeviceClosed
       _ => raise VirtualDeviceFailed(operation~, errno~)
     }
   }
@@ -222,13 +226,40 @@ pub fn VirtualDeviceBuilder::create(
     ignore(native.close())
   }
   check_errno("UI_DEV_CREATE", err)
-  { native, }
+  let keys : Array[Int] = []
+  let relative_axes : Array[Int] = []
+  let absolute_axes : Array[Int] = []
+  for key in self.keys {
+    keys.push(key.to_linux())
+  }
+  for axis in self.relative_axes {
+    relative_axes.push(axis.to_linux())
+  }
+  for setup in self.absolute_axes {
+    absolute_axes.push(setup.axis.to_linux())
+  }
+  { native, keys, relative_axes, absolute_axes, }
 }
 
 ///|
 /// Whether the virtual device descriptor remains open.
 pub fn VirtualDevice::is_open(self : VirtualDevice) -> Bool {
   self.native.is_open()
+}
+
+///|
+/// Kernel sysfs name (usually `inputN`) assigned to this created device.
+/// It can be used to locate the device's own event node for integration tests
+/// and to avoid feedback when input and output devices are both monitored.
+pub fn VirtualDevice::sysname(
+  self : VirtualDevice,
+) -> String raise @errors.InputError {
+  let buffer : FixedArray[Byte] = FixedArray::make(128, b'\x00')
+  let length = self.native.write_sysname(buffer)
+  if length < 0 {
+    check_errno("UI_GET_SYSNAME", -length)
+  }
+  @utf8.decode_lossy(Bytes::makei(length, index => buffer[index]))
 }
 
 ///|

@@ -1,6 +1,6 @@
 import {
-  "mooninput/src/codes",
-  "mooninput/src/errors",
+  "eisem/mooninput/src/codes",
+  "eisem/mooninput/src/errors",
   "moonbitlang/core/encoding/utf8",
 }
 

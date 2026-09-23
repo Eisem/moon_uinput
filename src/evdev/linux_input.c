@@ -69,6 +69,42 @@ mooninput_evdev_is_open(mooninput_evdev_device *device) {
   return device->fd >= 0;
 }
 
+MOONBIT_FFI_EXPORT int32_t mooninput_evdev_duplicate_fd(mooninput_evdev_device *device) {
+#ifdef __linux__
+  if (device->fd < 0) return -EBADF;
+  int copy = fcntl(device->fd, F_DUPFD_CLOEXEC, 0);
+  return copy < 0 ? -errno : copy;
+#else
+  (void)device;
+  return -38;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t mooninput_evdev_event_size(void) {
+#ifdef __linux__
+  return sizeof(struct input_event);
+#else
+  return 0;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int64_t *mooninput_evdev_decode_event(uint8_t *buffer) {
+  int64_t *result = moonbit_make_int64_array(5, 0);
+#ifdef __linux__
+  if ((size_t)Moonbit_array_length(buffer) < sizeof(struct input_event)) return result;
+  struct input_event event;
+  memcpy(&event, buffer, sizeof(event));
+  result[0] = event.time.tv_sec;
+  result[1] = event.time.tv_usec;
+  result[2] = event.type;
+  result[3] = event.code;
+  result[4] = event.value;
+#else
+  (void)buffer;
+#endif
+  return result;
+}
+
 MOONBIT_FFI_EXPORT int32_t
 mooninput_evdev_close(mooninput_evdev_device *device) {
 #ifdef __linux__

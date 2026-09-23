@@ -29,6 +29,10 @@ test "input errors have actionable messages" {
     content="Invalid Linux input event type/code: 99/-1",
   )
   inspect(
+    @errors.InputError::UnsupportedOutputCapability(event_type=1, code=31).describe(),
+    content="Virtual device does not advertise event type/code: 1/31",
+  )
+  inspect(
     @errors.InputError::OpenFailed(path="/dev/input/event4", errno=16).describe(),
     content="Opening /dev/input/event4 failed with errno 16",
   )

@@ -15,7 +15,8 @@ cleanup() {
 trap cleanup EXIT
 
 cd "$source_dir"
-tar --exclude=./_build --exclude=./.git -cf - . \
+tar --exclude=./_build --exclude=./.mooncakes --exclude=./.repos \
+  --exclude=./.git --exclude=./.git-codex-hold -cf - . \
   | tar -xf - -C "$validation_dir"
 
 cd "$validation_dir"
@@ -30,6 +31,10 @@ gcc -std=gnu11 -Wall -Wextra -Werror \
   -I"$HOME/.moon/include" \
   -c src/uinput/linux_uinput.c \
   -o "$validation_dir/linux_uinput.strict.o"
+gcc -std=gnu11 -Wall -Wextra -Werror \
+  -I"$HOME/.moon/include" \
+  -c examples/uinput_roundtrip/roundtrip.c \
+  -o "$validation_dir/roundtrip.strict.o"
 moon check --warn-list +unnecessary_annotation --deny-warn
 moon test --target native --deny-warn -v
 moon build --target native --deny-warn

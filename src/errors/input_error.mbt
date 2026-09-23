@@ -17,6 +17,9 @@ pub(all) suberror InputError {
   InvalidVirtualDeviceConfig(reason~ : String)
   VirtualDeviceFailed(operation~ : String, errno~ : Int)
   InvalidOutputEvent(event_type~ : Int, code~ : Int)
+  UnsupportedOutputCapability(event_type~ : Int, code~ : Int)
+  InvalidRemapSource(reason~ : String)
+  RoundTripFailed(reason~ : String)
 } derive(Debug, Eq)
 
 ///|
@@ -49,5 +52,10 @@ pub fn InputError::describe(self : InputError) -> String {
       "Virtual device \{operation} failed with errno \{errno}"
     InvalidOutputEvent(event_type~, code~) =>
       "Invalid Linux input event type/code: \{event_type}/\{code}"
+    UnsupportedOutputCapability(event_type~, code~) =>
+      "Virtual device does not advertise event type/code: \{event_type}/\{code}"
+    InvalidRemapSource(reason~) =>
+      "Cannot use input device for remapping: \{reason}"
+    RoundTripFailed(reason~) => "Virtual input round-trip failed: \{reason}"
   }
 }

@@ -1,5 +1,5 @@
 import {
-  "mooninput/src/evdev",
+  "eisem/mooninput/src/evdev",
   "moonbitlang/core/env",
 }
 

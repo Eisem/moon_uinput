@@ -23,10 +23,27 @@ fn VirtualDevice::send_frame(
   events : Array[OutputEvent],
 ) -> Unit raise @errors.InputError {
   for event in events {
-    check_errno(
-      "write input event",
-      self.native.emit(event.event_type, event.code, event.value),
-    )
+    self.emit(event.event_type, event.code, event.value)
+  }
+}
+
+///|
+fn validate_configured_output(
+  event_type : Int,
+  code : Int,
+  keys : Array[Int],
+  relative_axes : Array[Int],
+  absolute_axes : Array[Int],
+) -> Unit raise @errors.InputError {
+  let advertised = match event_type {
+    0 => code == 0
+    1 => keys.contains(code)
+    2 => relative_axes.contains(code)
+    3 => absolute_axes.contains(code)
+    _ => false
+  }
+  if !advertised {
+    raise UnsupportedOutputCapability(event_type~, code~)
   }
 }
 
@@ -50,6 +67,13 @@ pub fn VirtualDevice::emit(
   value : Int,
 ) -> Unit raise @errors.InputError {
   validate_output_event(event_type, code)
+  validate_configured_output(
+    event_type,
+    code,
+    self.keys,
+    self.relative_axes,
+    self.absolute_axes,
+  )
   check_errno("write input event", self.native.emit(event_type, code, value))
 }
 

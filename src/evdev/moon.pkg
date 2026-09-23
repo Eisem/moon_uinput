@@ -1,10 +1,15 @@
 import {
-  "mooninput/src/codes",
-  "mooninput/src/event",
-  "mooninput/src/errors",
+  "eisem/mooninput/src/codes",
+  "eisem/mooninput/src/event",
+  "eisem/mooninput/src/errors",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/x/fs",
+  "moonbitlang/async/raw_fd",
 }
+
+import {
+  "moonbitlang/async",
+} for "test"
 
 supported_targets = "native"
 

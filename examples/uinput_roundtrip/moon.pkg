@@ -1,10 +1,17 @@
 import {
+  "eisem/mooninput/src/codes",
   "eisem/mooninput/src/errors",
   "eisem/mooninput/src/evdev",
   "eisem/mooninput/src/event",
-  "moonbitlang/core/env",
+  "eisem/mooninput/src/uinput",
+  "moonbitlang/x/fs",
+  "moonbitlang/async",
 }
 
 supported_targets = "native"
 
 pkgtype(kind: "executable")
+
+options(
+  "native-stub": [ "roundtrip.c" ],
+)

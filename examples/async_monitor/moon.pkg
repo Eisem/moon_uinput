@@ -1,6 +1,6 @@
 import {
-  "eisem/mooninput/src/errors",
   "eisem/mooninput/src/evdev",
+  "moonbitlang/async",
   "moonbitlang/core/env",
 }
 

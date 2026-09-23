@@ -59,3 +59,10 @@ extern "C" fn NativeVirtualDevice::close(self : NativeVirtualDevice) -> Int = "m
 ///|
 #borrow(self)
 extern "C" fn NativeVirtualDevice::is_open(self : NativeVirtualDevice) -> Bool = "mooninput_uinput_is_open"
+
+///|
+#borrow(self, buffer)
+extern "C" fn NativeVirtualDevice::write_sysname(
+  self : NativeVirtualDevice,
+  buffer : FixedArray[Byte],
+) -> Int = "mooninput_uinput_sysname"

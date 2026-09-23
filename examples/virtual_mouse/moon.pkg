@@ -1,5 +1,5 @@
 import {
-  "mooninput/src/uinput",
+  "eisem/mooninput/src/uinput",
 }
 
 supported_targets = "native"

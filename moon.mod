@@ -1,4 +1,4 @@
-name = "mooninput"
+name = "eisem/mooninput"
 
 version = "0.1.0"
 
@@ -12,4 +12,5 @@ preferred_target = "native"
 
 import {
   "moonbitlang/x@0.5.5",
+  "moonbitlang/async@0.22.1",
 }

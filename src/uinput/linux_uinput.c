@@ -42,6 +42,19 @@ MOONBIT_FFI_EXPORT mooninput_uinput_device *mooninput_uinput_open(void) {
 MOONBIT_FFI_EXPORT int32_t mooninput_uinput_error(mooninput_uinput_device *d) { return d->error; }
 MOONBIT_FFI_EXPORT int32_t mooninput_uinput_is_open(mooninput_uinput_device *d) { return d->fd >= 0; }
 
+MOONBIT_FFI_EXPORT int32_t mooninput_uinput_sysname(mooninput_uinput_device *d, uint8_t *buffer) {
+#ifdef __linux__
+  if (d->fd < 0) return -EBADF;
+  uint32_t capacity = Moonbit_array_length(buffer);
+  if (capacity < 2) return -EINVAL;
+  memset(buffer, 0, capacity);
+  if (ioctl(d->fd, UI_GET_SYSNAME(capacity), buffer) < 0) return -errno;
+  return (int32_t)strnlen((const char *)buffer, capacity);
+#else
+  (void)d; (void)buffer; return -38;
+#endif
+}
+
 MOONBIT_FFI_EXPORT int32_t mooninput_uinput_setup(mooninput_uinput_device *d, moonbit_bytes_t name, int32_t bus, int32_t vendor, int32_t product, int32_t version) {
 #ifdef __linux__
   struct uinput_setup setup; uint32_t n = Moonbit_array_length(name);

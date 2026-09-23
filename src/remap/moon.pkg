@@ -1,9 +1,9 @@
 import {
+  "eisem/mooninput/src/codes",
   "eisem/mooninput/src/errors",
   "eisem/mooninput/src/evdev",
-  "moonbitlang/core/env",
+  "eisem/mooninput/src/event",
+  "eisem/mooninput/src/uinput",
 }
 
 supported_targets = "native"
-
-pkgtype(kind: "executable")
