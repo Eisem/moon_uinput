@@ -183,6 +183,26 @@ mooninput_evdev_absolute_axis(mooninput_evdev_device *device, int32_t code) {
   return result;
 }
 
+MOONBIT_FFI_EXPORT int32_t mooninput_evdev_key_state(
+    mooninput_evdev_device *device, uint8_t *buffer) {
+#ifdef __linux__
+  if (device->fd < 0) {
+    return -EBADF;
+  }
+  uint32_t capacity = Moonbit_array_length(buffer);
+  if (capacity == 0) {
+    return -EINVAL;
+  }
+  memset(buffer, 0, capacity);
+  int result = ioctl(device->fd, EVIOCGKEY(capacity), buffer);
+  return result < 0 ? -errno : result;
+#else
+  (void)device;
+  (void)buffer;
+  return -38;
+#endif
+}
+
 MOONBIT_FFI_EXPORT int64_t *
 mooninput_evdev_read(mooninput_evdev_device *device) {
   int64_t *result = moonbit_make_int64_array(7, 0);

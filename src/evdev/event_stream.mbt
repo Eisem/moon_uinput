@@ -37,3 +37,24 @@ pub fn DevicePacketStream::next(
     }
   }
 }
+
+///|
+/// A packet stream that replaces lost event frames with kernel state snapshots.
+pub struct SyncedPacketStream {
+  packets : DevicePacketStream
+  device : Device
+}
+
+///|
+/// Read the next complete event packet or state snapshot after `SYN_DROPPED`.
+///
+/// The packet containing `SYN_DROPPED` is discarded. Its frame ends at the
+/// following `SYN_REPORT`; the current pressed keys and absolute-axis values
+/// are queried at that point and returned as `Recovered`. Reading resumes at
+/// the next frame. I/O and snapshot errors are propagated.
+pub fn SyncedPacketStream::next(
+  self : SyncedPacketStream,
+) -> @event.SyncedPacket raise @errors.InputError {
+  let packet = self.packets.next()
+  @event.synchronize_packet(packet, () => self.device.state())
+}

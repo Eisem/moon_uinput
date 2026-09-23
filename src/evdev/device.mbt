@@ -141,6 +141,18 @@ fn NativeDevice::absolute_axis_info(
 }
 
 ///|
+fn NativeDevice::key_state_bitmap(
+  self : NativeDevice,
+) -> Bytes raise @errors.InputError {
+  let buffer : FixedArray[Byte] = FixedArray::make(96, b'\x00')
+  let length = self.write_key_state(buffer)
+  if length < 0 {
+    raise_ioctl_error("EVIOCGKEY", -length)
+  }
+  Bytes::makei(length, index => buffer[index])
+}
+
+///|
 /// Query typed event, key, axis, switch, and LED capabilities.
 pub fn Device::capabilities(
   self : Device,
@@ -168,6 +180,25 @@ pub fn Device::capabilities(
     switches: decoded.switches,
     leds: decoded.leds,
   }
+}
+
+///|
+/// Query pressed keys and current absolute-axis values from the kernel.
+///
+/// This snapshot is intended for resynchronizing after `SYN_DROPPED`.
+pub fn Device::state(
+  self : Device,
+) -> @event.DeviceState raise @errors.InputError {
+  let pressed_keys = decode_keys(self.native.key_state_bitmap())
+  let capabilities = self.capabilities()
+  let absolute_axes : Array[@event.AbsoluteAxisState] = []
+  for axis in capabilities.absolute_axes {
+    match axis.info {
+      Some(info) => absolute_axes.push({ axis: axis.axis, value: info.value, })
+      None => ()
+    }
+  }
+  { pressed_keys, absolute_axes, }
 }
 
 ///|
@@ -216,4 +247,10 @@ pub fn Device::events(self : Device) -> EventStream {
 /// it remains pending if the caller retries the stream.
 pub fn Device::packets(self : Device) -> DevicePacketStream {
   { device: self, packetizer: @event.Packetizer::new(), }
+}
+
+///|
+/// Create a packet stream that queries current device state after `SYN_DROPPED`.
+pub fn Device::synced_packets(self : Device) -> SyncedPacketStream {
+  { packets: self.packets(), device: self, }
 }

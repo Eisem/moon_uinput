@@ -4,7 +4,7 @@ MoonInput is a native MoonBit library for the Linux Input Subsystem. It aims
 to provide typed evdev event consumption and uinput virtual-device creation
 without exposing Linux ABI details throughout application code.
 
-This repository currently implements the first delivery slice, **P0–P5 plus
+This repository currently implements the first delivery slice, **P0–P6 plus
 device discovery**:
 
 - MoonBit project and package structure;
@@ -22,10 +22,11 @@ device discovery**:
 - a blocking `EventStream`, device-listing, monitor, and capability examples;
 - a pure MoonBit packetizer and a blocking packet stream aligned to
   `SYN_REPORT`;
+- state snapshots and `Device::synced_packets()` recovery after `SYN_DROPPED`;
 - synthetic decoder tests that require no input hardware.
 
-`SYN_DROPPED` recovery, grabbing, asynchronous reading, and uinput are later
-milestones and are not claimed by this slice.
+Grabbing, asynchronous reading, and uinput are later milestones and are not
+claimed by this slice.
 
 ## Architecture
 
@@ -90,6 +91,12 @@ Applications that need input frames instead of individual events can use
 are skipped; other synchronization events are preserved in the packet for
 higher layers to interpret. An I/O error propagates, and an incomplete packet
 is never emitted.
+
+For applications that maintain key or absolute-axis state, use
+`Device::synced_packets()`. It discards the frame containing `SYN_DROPPED`,
+queries pressed keys and current absolute-axis values at its terminating
+`SYN_REPORT`, then returns `Recovered(state)` before resuming with later event
+packets.
 
 Choose a device explicitly and run:
 
@@ -183,15 +190,13 @@ framework, or support non-Linux operating systems.
 ## Known limitations of the current slice
 
 - event reading is blocking and synchronous;
-- `SYN_DROPPED` is decoded but state recovery is not yet implemented;
 - `EVIOCGRAB` and uinput virtual devices are not implemented.
 
 ## Roadmap
 
-1. P6: `SYN_DROPPED` state recovery;
-2. P7: explicit grab/ungrab;
-3. P8–P10: uinput keyboard, mouse, and remapper pipeline;
-4. asynchronous event reading after the synchronous correctness baseline.
+1. P7: explicit grab/ungrab;
+2. P8–P10: uinput keyboard, mouse, and remapper pipeline;
+3. asynchronous event reading after the synchronous correctness baseline.
 
 ## License
 

@@ -24,7 +24,7 @@
 - [x] FFI 参数补齐新版编译器要求的 `#borrow` 所有权注解。
 - [x] Windows 严格检查与 WSL2 Ubuntu 原生验证。
 - [x] GitHub Actions Linux native CI 配置。
-- [x] 已建立连续、可追踪的有效提交历史；当前 5 个，目标至少 10 个。
+- [x] 已建立连续、可追踪的有效提交历史；当前 6 个，目标至少 10 个。
 
 ## 实施顺序
 
@@ -56,11 +56,11 @@
 
 ### 4. SYN_DROPPED Recovery（计划 Commit 6）
 
-- [ ] 检测 `SYN_DROPPED` 并进入失同步状态。
-- [ ] 丢弃直到下一次 `SYN_REPORT` 的不可信事件。
-- [ ] C shim 支持 `EVIOCGKEY` 与必要的绝对轴状态查询。
-- [ ] 使用可替换状态源测试恢复状态机。
-- [ ] 提供 `synced_packets()` 或等价的默认安全 API。
+- [x] 检测 `SYN_DROPPED` 并进入失同步状态。
+- [x] 丢弃含 `SYN_DROPPED` 的整帧，并在其 `SYN_REPORT` 后恢复。
+- [x] C shim 支持 `EVIOCGKEY` 与绝对轴状态查询。
+- [x] 使用可替换状态源测试恢复状态机。
+- [x] 提供 `Device::synced_packets()` 与 `Device::state()` API。
 
 ### 5. EVIOCGRAB（计划 Commit 7）
 
@@ -123,7 +123,7 @@
 
 ## 当前指标
 
-- 有效提交：5 / 10（最低要求）。
-- 源码与测试代码：约 2,165 / 4,000–10,000 行。
-- 自动化测试：Windows 17/17；WSL2 Ubuntu 18/18。
-- 当前工作项：SYN_DROPPED 状态恢复。
+- 有效提交：6 / 10（最低要求）。
+- 源码与测试代码：约 2,363 / 4,000–10,000 行。
+- 自动化测试：Windows 20/20；WSL2 Ubuntu 21/21。
+- 当前工作项：EVIOCGRAB 独占读取。

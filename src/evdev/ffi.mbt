@@ -44,6 +44,13 @@ extern "C" fn NativeDevice::absolute_axis_values(
 ) -> FixedArray[Int] = "mooninput_evdev_absolute_axis"
 
 ///|
+#borrow(self, buffer)
+extern "C" fn NativeDevice::write_key_state(
+  self : NativeDevice,
+  buffer : FixedArray[Byte],
+) -> Int = "mooninput_evdev_key_state"
+
+///|
 #borrow(self)
 extern "C" fn NativeDevice::read_values(
   self : NativeDevice,

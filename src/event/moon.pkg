@@ -1,3 +1,4 @@
 import {
   "mooninput/src/codes",
+  "mooninput/src/errors",
 }
