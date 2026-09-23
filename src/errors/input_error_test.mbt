@@ -25,6 +25,10 @@ test "input errors have actionable messages" {
     content="Input device is not grabbed: /dev/input/event4",
   )
   inspect(
+    @errors.InputError::InvalidOutputEvent(event_type=99, code=-1).describe(),
+    content="Invalid Linux input event type/code: 99/-1",
+  )
+  inspect(
     @errors.InputError::OpenFailed(path="/dev/input/event4", errno=16).describe(),
     content="Opening /dev/input/event4 failed with errno 16",
   )

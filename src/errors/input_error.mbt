@@ -16,6 +16,7 @@ pub(all) suberror InputError {
   CloseFailed(errno~ : Int)
   InvalidVirtualDeviceConfig(reason~ : String)
   VirtualDeviceFailed(operation~ : String, errno~ : Int)
+  InvalidOutputEvent(event_type~ : Int, code~ : Int)
 } derive(Debug, Eq)
 
 ///|
@@ -46,5 +47,7 @@ pub fn InputError::describe(self : InputError) -> String {
       "Invalid virtual device configuration: \{reason}"
     VirtualDeviceFailed(operation~, errno~) =>
       "Virtual device \{operation} failed with errno \{errno}"
+    InvalidOutputEvent(event_type~, code~) =>
+      "Invalid Linux input event type/code: \{event_type}/\{code}"
   }
 }

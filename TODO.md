@@ -79,10 +79,10 @@
 
 ### 7. Virtual Keyboard（计划 Commit 9）
 
-- [ ] 提供底层 `emit()` 和 `sync()`。
-- [ ] 提供 `key_down()`、`key_up()`、`key_click()`。
-- [ ] 添加 `examples/virtual_keyboard`。
-- [ ] 无 `/dev/uinput` 时返回可操作的权限或不可用错误。
+- [x] 提供底层 `emit()` 和 `sync()`，并拒绝超出 Linux ABI 范围的 event type/code。
+- [x] 提供 `key_down()`、`key_up()`、`key_click()`，各自正确结束 SYN_REPORT 帧。
+- [x] 添加 `examples/virtual_keyboard`。
+- [x] 无 `/dev/uinput` 时返回可操作的权限或不可用错误。
 
 ### 8. Virtual Mouse（计划 Commit 10）
 
@@ -123,7 +123,7 @@
 
 ## 当前指标
 
-- 有效提交：8 / 10（最低要求）。
-- 源码与测试代码：约 2,700 / 4,000–10,000 行。
-- 自动化测试：Windows 23/23；WSL2 Ubuntu 25/25；uinput 严格 C 编译通过。
-- 当前工作项：虚拟键盘与鼠标输出 API。
+- 有效提交：9 / 10（最低要求）。
+- 源码与测试代码：约 2,900 / 4,000–10,000 行。
+- 自动化测试：Windows 与 WSL2 Ubuntu 待本轮整体验收；真实 uinput 创建受当前 WSL 设备权限限制。
+- 当前工作项：虚拟鼠标输出 API。

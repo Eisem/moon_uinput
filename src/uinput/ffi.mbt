@@ -45,6 +45,15 @@ extern "C" fn NativeVirtualDevice::create(self : NativeVirtualDevice) -> Int = "
 
 ///|
 #borrow(self)
+extern "C" fn NativeVirtualDevice::emit(
+  self : NativeVirtualDevice,
+  event_type : Int,
+  code : Int,
+  value : Int,
+) -> Int = "mooninput_uinput_emit"
+
+///|
+#borrow(self)
 extern "C" fn NativeVirtualDevice::close(self : NativeVirtualDevice) -> Int = "mooninput_uinput_close"
 
 ///|

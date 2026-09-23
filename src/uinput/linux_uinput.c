@@ -92,6 +92,21 @@ MOONBIT_FFI_EXPORT int32_t mooninput_uinput_create(mooninput_uinput_device *d) {
 #endif
 }
 
+MOONBIT_FFI_EXPORT int32_t mooninput_uinput_emit(mooninput_uinput_device *d, int32_t event_type, int32_t code, int32_t value) {
+#ifdef __linux__
+  if (d->fd < 0) return EBADF;
+  if (!d->created) return ENODEV;
+  struct input_event event; memset(&event, 0, sizeof(event));
+  event.type = (uint16_t)event_type; event.code = (uint16_t)code; event.value = value;
+  ssize_t written;
+  do { written = write(d->fd, &event, sizeof(event)); } while (written < 0 && errno == EINTR);
+  if (written < 0) return errno;
+  return written == (ssize_t)sizeof(event) ? 0 : EIO;
+#else
+  (void)d; (void)event_type; (void)code; (void)value; return 38;
+#endif
+}
+
 MOONBIT_FFI_EXPORT int32_t mooninput_uinput_close(mooninput_uinput_device *d) {
 #ifdef __linux__
   if (d->fd < 0) return 0;

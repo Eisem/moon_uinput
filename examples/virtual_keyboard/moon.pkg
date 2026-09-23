@@ -1,0 +1,7 @@
+import {
+  "mooninput/src/uinput",
+}
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")

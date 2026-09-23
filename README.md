@@ -4,8 +4,9 @@ MoonInput is a native MoonBit library for the Linux Input Subsystem. It aims
 to provide typed evdev event consumption and uinput virtual-device creation
 without exposing Linux ABI details throughout application code.
 
-This repository currently implements the first delivery slice, **P0–P6 plus
-device discovery**:
+This repository currently implements typed evdev input, state recovery,
+exclusive device grabs, a uinput virtual-device core, and virtual keyboard
+output:
 
 - MoonBit project and package structure;
 - a small C shim that isolates `struct input_event` and ioctl ABI handling;
@@ -23,10 +24,12 @@ device discovery**:
 - a pure MoonBit packetizer and a blocking packet stream aligned to
   `SYN_REPORT`;
 - state snapshots and `Device::synced_packets()` recovery after `SYN_DROPPED`;
+- opt-in `Device::grab()` / `ungrab()` with structured lifecycle errors;
+- validated uinput device creation and cleanup;
+- synchronized key-down, key-up, and click output;
 - synthetic decoder tests that require no input hardware.
 
-Grabbing, asynchronous reading, and uinput are later milestones and are not
-claimed by this slice.
+Mouse output, asynchronous reading, and the remapper remain planned work.
 
 ## Architecture
 
@@ -205,14 +208,20 @@ Creating a device requires Linux and access to `/dev/uinput` (often via the
 `uinput` kernel module and an appropriate group/udev policy). MoonInput does not
 change permissions or load modules on the user's behalf.
 
+The `examples/virtual_keyboard` program creates a virtual keyboard and sends
+one A-key click. Its low-level `emit()` writes a single event; call `sync()` to
+finish a frame. The key helpers emit a SYN_REPORT after each state change.
+Running the example injects a real key into the desktop session, so only run it
+when that behavior is intended.
+
 ## Known limitations of the current slice
 
 - event reading is blocking and synchronous;
-- high-level virtual keyboard/mouse helpers and remapper are not implemented.
+- high-level virtual mouse helpers and remapper are not implemented.
 
 ## Roadmap
 
-1. P9–P10: uinput keyboard, mouse, and remapper pipeline;
+1. P10–P12: uinput mouse, remapper, and release pipeline;
 2. asynchronous event reading after the synchronous correctness baseline.
 
 ## License
