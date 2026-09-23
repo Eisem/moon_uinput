@@ -1,0 +1,11 @@
+import {
+  "mooninput/src/codes",
+  "mooninput/src/errors",
+  "moonbitlang/core/encoding/utf8",
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "linux_uinput.c" ],
+)

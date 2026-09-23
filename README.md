@@ -192,14 +192,27 @@ MoonInput does not aim to replace libinput, implement a desktop input stack,
 provide Wayland or X11 APIs, become a complete remapping daemon or automation
 framework, or support non-Linux operating systems.
 
+## Creating virtual devices
+
+`@mooninput/src/uinput.VirtualDeviceBuilder` configures a virtual device name,
+Linux identity and typed key/relative/absolute-axis capabilities. `validate()`
+checks the configuration without requiring `/dev/uinput`; `create()` applies it
+through the Linux uinput ioctls. Duplicate capabilities are ignored, and the
+first setup for a repeated absolute axis wins. `VirtualDevice::close()` destroys
+the kernel device and closes its descriptor; the native finalizer is a fallback.
+
+Creating a device requires Linux and access to `/dev/uinput` (often via the
+`uinput` kernel module and an appropriate group/udev policy). MoonInput does not
+change permissions or load modules on the user's behalf.
+
 ## Known limitations of the current slice
 
 - event reading is blocking and synchronous;
-- uinput virtual devices are not implemented.
+- high-level virtual keyboard/mouse helpers and remapper are not implemented.
 
 ## Roadmap
 
-1. P8–P10: uinput keyboard, mouse, and remapper pipeline;
+1. P9–P10: uinput keyboard, mouse, and remapper pipeline;
 2. asynchronous event reading after the synchronous correctness baseline.
 
 ## License

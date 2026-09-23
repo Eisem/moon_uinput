@@ -26,6 +26,10 @@ gcc -std=gnu11 -Wall -Wextra -Werror \
   -I"$HOME/.moon/include" \
   -c src/evdev/linux_input.c \
   -o "$validation_dir/linux_input.strict.o"
+gcc -std=gnu11 -Wall -Wextra -Werror \
+  -I"$HOME/.moon/include" \
+  -c src/uinput/linux_uinput.c \
+  -o "$validation_dir/linux_uinput.strict.o"
 moon check --warn-list +unnecessary_annotation --deny-warn
 moon test --target native --deny-warn -v
 moon build --target native --deny-warn

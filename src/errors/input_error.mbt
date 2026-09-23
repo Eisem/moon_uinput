@@ -14,6 +14,8 @@ pub(all) suberror InputError {
   IoctlFailed(operation~ : String, errno~ : Int)
   ReadFailed(errno~ : Int)
   CloseFailed(errno~ : Int)
+  InvalidVirtualDeviceConfig(reason~ : String)
+  VirtualDeviceFailed(operation~ : String, errno~ : Int)
 } derive(Debug, Eq)
 
 ///|
@@ -40,5 +42,9 @@ pub fn InputError::describe(self : InputError) -> String {
     IoctlFailed(operation~, errno~) => "\{operation} failed with errno \{errno}"
     ReadFailed(errno~) => "Reading input event failed with errno \{errno}"
     CloseFailed(errno~) => "Closing input device failed with errno \{errno}"
+    InvalidVirtualDeviceConfig(reason~) =>
+      "Invalid virtual device configuration: \{reason}"
+    VirtualDeviceFailed(operation~, errno~) =>
+      "Virtual device \{operation} failed with errno \{errno}"
   }
 }

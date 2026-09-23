@@ -71,11 +71,11 @@
 
 ### 6. uinput Core（计划 Commit 8）
 
-- [ ] 定义 `VirtualDeviceBuilder` 和配置验证错误。
-- [ ] 支持名称、bus/vendor/product/version 和 capability 配置。
-- [ ] C shim 使用系统头文件实现 `UI_SET_*`、`UI_DEV_SETUP`、`UI_DEV_CREATE`。
-- [ ] 定义 `VirtualDevice` 生命周期和 `UI_DEV_DESTROY`。
-- [ ] builder 自动补全或拒绝冲突配置，并以测试固定行为。
+- [x] 定义 `VirtualDeviceBuilder` 和配置验证错误。
+- [x] 支持名称、bus/vendor/product/version 和 capability 配置。
+- [x] C shim 使用系统头文件实现 `UI_SET_*`、`UI_DEV_SETUP`、`UI_DEV_CREATE`。
+- [x] 定义 `VirtualDevice` 生命周期和 `UI_DEV_DESTROY`。
+- [x] builder 去重重复 capability，重复绝对轴配置采用首次配置，并以测试固定行为。
 
 ### 7. Virtual Keyboard（计划 Commit 9）
 
@@ -123,7 +123,7 @@
 
 ## 当前指标
 
-- 有效提交：7 / 10（最低要求）。
-- 源码与测试代码：约 2,485 / 4,000–10,000 行。
-- 自动化测试：Windows 20/20；WSL2 Ubuntu 22/22。
-- 当前工作项：uinput Core 与虚拟设备生命周期。
+- 有效提交：8 / 10（最低要求）。
+- 源码与测试代码：约 2,700 / 4,000–10,000 行。
+- 自动化测试：Windows 23/23；WSL2 Ubuntu 25/25；uinput 严格 C 编译通过。
+- 当前工作项：虚拟键盘与鼠标输出 API。
