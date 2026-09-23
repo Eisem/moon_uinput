@@ -1,4 +1,5 @@
 ///|
+/// One Linux input event in the stable fields consumed by the uinput writer.
 pub(all) struct OutputEvent {
   event_type : Int
   code : Int

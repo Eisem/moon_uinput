@@ -1,4 +1,5 @@
 ///|
+/// A supported standard mouse button.
 pub(all) enum MouseButton {
   Left
   Right
