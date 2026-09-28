@@ -68,7 +68,36 @@ the platform `struct input_event` into stable integer fields.
 - MoonBit `0.1.20260920` or newer, with `moonbitlang/async@0.22.1`;
 - a native C compiler and Linux input headers.
 
-Clone the project and validate it with:
+Add the module to a MoonBit project:
+
+```bash
+moon add eisem/mooninput@0.1.0
+```
+
+Import the packages you use in your project's `moon.pkg`:
+
+```moonbit
+import {
+  "eisem/mooninput/src/codes",
+  "eisem/mooninput/src/event",
+  "eisem/mooninput/src/evdev",
+}
+```
+
+For a hardware-independent installation check, convert a Linux key code using
+the public `codes` package:
+
+```moonbit
+fn main {
+  let key = @codes.KeyCode::from_linux(30)
+  println(key.to_linux()) // 30 (KEY_A)
+}
+```
+
+For device access, use `@evdev.Device::open` as shown below. Import `src/uinput`
+when creating virtual devices.
+
+To work on the module itself, clone the repository and validate it with:
 
 ```bash
 moon update
@@ -112,7 +141,9 @@ For applications that maintain key or absolute-axis state, use
 `Device::synced_packets()`. It discards the frame containing `SYN_DROPPED`,
 queries pressed keys and current absolute-axis values at its terminating
 `SYN_REPORT`, then returns `Recovered(state)` before resuming with later event
-packets.
+packets. The snapshot queries the key bitmap and absolute-axis capability
+bitmap, followed by one current-value query per advertised absolute axis; it
+does not fetch unrelated capability families during recovery.
 
 Choose a device explicitly and run:
 
@@ -293,8 +324,11 @@ permissions, or alter the project's Git history.
 
 ## Known limitations
 
-- The async library's generic I/O and cancellation errors are propagated as
-  generic `Error`; sync evdev methods provide structured `InputError` values.
+- Async EOF and Linux `EBADF`/`ENODEV` read failures are reported as the same
+  structured `InputError` variants used by synchronous reads; other read
+  failures retain their errno in `ReadFailed`. Cancellation still follows the
+  async runtime's cancellation semantics and is not translated into an I/O
+  error.
 - The remapper forwards key events only and uses a fixed CapsLock/H/J/K/L
   mapping; it is not a configurable desktop input daemon.
 - Hardware readout and grabbing need Linux device access. A regular CI runner
@@ -305,8 +339,8 @@ permissions, or alter the project's Git history.
 1. Add an opt-in, configurable mapping format and safer interactive device
    selection to the remapper.
 2. Extend typed output to switches, LEDs, and force feedback where supported.
-3. Publish the GitHub repository and mooncakes.io module after final account
-   and repository details are confirmed.
+3. Expand named Linux input codes while retaining lossless unknown-code
+   handling for newer kernels.
 
 ## License
 

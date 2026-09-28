@@ -5,11 +5,16 @@ import {
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/x/fs",
   "moonbitlang/async/raw_fd",
+  "moonbitlang/async/os_error",
 }
 
 import {
   "moonbitlang/async",
 } for "test"
+
+import {
+  "moonbitlang/async",
+} for "wbtest"
 
 supported_targets = "native"
 

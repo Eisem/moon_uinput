@@ -1,0 +1,19 @@
+# Local development and generated files are not part of the published module.
+_build/
+target/
+.mooncakes/
+.repos/
+.github/
+.ci/
+.agents/
+.codex/
+*.core
+pkg.generated.mbti
+
+# Planning and submission material belongs to the repository, not consumers.
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+skills-lock.json
+TODO*.md
+SUBMISSION*.md

@@ -48,6 +48,12 @@ test "evdev handles a closed descriptor predictably" {
       } noraise {
         _ => fail("expected DeviceClosed from capabilities")
       }
+      try device.state() catch {
+        DeviceClosed => ()
+        error => fail("unexpected state error: \{error.describe()}")
+      } noraise {
+        _ => fail("expected DeviceClosed from state")
+      }
       try device.read_raw() catch {
         DeviceClosed => ()
         error => fail("unexpected error: \{error.describe()}")

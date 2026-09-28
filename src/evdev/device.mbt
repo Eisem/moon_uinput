@@ -222,22 +222,36 @@ pub fn Device::capabilities(
 }
 
 ///|
+fn snapshot_device_state(
+  key_state : () -> Bytes raise @errors.InputError,
+  absolute_axis_bitmap : () -> Bytes raise @errors.InputError,
+  absolute_axis_info : (@codes.AbsoluteAxis) -> AbsoluteAxisInfo raise @errors.InputError,
+) -> @event.DeviceState raise @errors.InputError {
+  // Two base ioctls plus one live-value ioctl per axis; a full capabilities
+  // query here would add five unrelated EVIOCGBIT calls on every recovery.
+  let pressed_keys = decode_keys(key_state())
+  let absolute_axes : Array[@event.AbsoluteAxisState] = []
+  for axis in decode_absolute_axes(absolute_axis_bitmap()) {
+    let info = absolute_axis_info(axis.axis)
+    absolute_axes.push({ axis: axis.axis, value: info.value, })
+  }
+  { pressed_keys, absolute_axes, }
+}
+
+///|
 /// Query pressed keys and current absolute-axis values from the kernel.
 ///
-/// This snapshot is intended for resynchronizing after `SYN_DROPPED`.
+/// This snapshot is intended for resynchronizing after `SYN_DROPPED`. It reads
+/// the key bitmap, the absolute-axis capability bitmap, and then each axis's
+/// current value; it does not query unrelated capability families.
 pub fn Device::state(
   self : Device,
 ) -> @event.DeviceState raise @errors.InputError {
-  let pressed_keys = decode_keys(self.native.key_state_bitmap())
-  let capabilities = self.capabilities()
-  let absolute_axes : Array[@event.AbsoluteAxisState] = []
-  for axis in capabilities.absolute_axes {
-    match axis.info {
-      Some(info) => absolute_axes.push({ axis: axis.axis, value: info.value, })
-      None => ()
-    }
-  }
-  { pressed_keys, absolute_axes, }
+  snapshot_device_state(
+    () => self.native.key_state_bitmap(),
+    () => self.native.capability_bitmap(3),
+    axis => self.native.absolute_axis_info(axis),
+  )
 }
 
 ///|

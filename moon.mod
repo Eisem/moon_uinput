@@ -12,6 +12,10 @@ repository = "https://github.com/Eisem/moon_uinput"
 
 preferred_target = "native"
 
+supported_targets = "native"
+
+keywords = [ "linux", "evdev", "uinput", "input" ]
+
 import {
   "moonbitlang/x@0.5.5",
   "moonbitlang/async@0.22.1",
